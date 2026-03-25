@@ -1,27 +1,50 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from pymongo import MongoClient
+import sqlite3
 
 app = Flask(__name__)
 CORS(app)
 
-# MongoDB connection
-client = MongoClient("mongodb://127.0.0.1:27017/")
-db = client["portfolioDB"]
-collection = db["contacts"]
+# Connect to DB
+def get_db():
+    conn = sqlite3.connect("database.db")
+    conn.row_factory = sqlite3.Row
+    return conn
 
-@app.route("/")
-def home():
-    return "Flask backend running"
+# Create table (run once)
+@app.route("/init-db")
+def init_db():
+    conn = get_db()
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS contacts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            email TEXT,
+            message TEXT
+        )
+    """)
+    conn.commit()
+    conn.close()
+    return "Database created!"
 
-@app.route("/contact", methods=["POST"])
-def contact():
-    try:
-        data = request.json
-        collection.insert_one(data)
-        return jsonify({"message": "Data saved successfully"}), 200
-    except Exception as e:
-        return jsonify({"error": "Error saving data"}), 500
+# API to store data
+@app.route("/submit", methods=["POST"])
+def submit():
+    data = request.json
+    name = data["name"]
+    email = data["email"]
+    message = data["message"]
+
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO contacts (name, email, message) VALUES (?, ?, ?)",
+        (name, email, message)
+    )
+    conn.commit()
+    conn.close()
+
+    return jsonify({"message": "Saved successfully!"})
 
 if __name__ == "__main__":
-    app.run(port=5000, debug=True)
+    if __name__ == "__main__":
+        app.run()
