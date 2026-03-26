@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Portfolio</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav>
+    <a href="#home">Home</a>
+    <a href="#skills">Skills</a>
+    <a href="#experience">Experience</a>
+    <a href="#contact">Contact</a>
+  </nav>
+
+  <!-- HERO -->
+  <section id="home" class="hero">
+    <h1>Hi, I'm ROSHAN J</h1>
+    <p>A passionate Web Developer 🚀</p>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills" class="skills">
+    <h2>My Skills</h2>
+    <ul>
+      <li>HTML</li>
+      <li>CSS</li>
+      <li>JavaScript</li>
+      <li>Python</li>
+      <li>Flask</li>
+    </ul>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section id="experience" class="experience">
+    <h2>Experience</h2>
+
+    <div class="exp-card">
+      <h3>Executive - Ad Production</h3>
+      <p><strong>Ripple Links Media Production</strong></p>
+      <p>
+        Worked as an executive handling advertisement production projects for 
+        <strong>Flipkart</strong>.
+      </p>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <h2>Contact Me</h2>
+
+    <input type="text" id="name" placeholder="Name" required><br>
+    <input type="email" id="email" placeholder="Email" required><br>
+    <textarea id="message" placeholder="Message" required></textarea><br>
+
+    <button type="button" onclick="sendData()">Send Message</button>
+
+    <p id="response"></p>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>
