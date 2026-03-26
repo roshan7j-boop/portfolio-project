@@ -1,41 +1,42 @@
 from flask import Flask, request, jsonify
 import sqlite3
-from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
+DB_NAME = 'mydatabase.db'
 
-@app.route("/")
+def get_db_connection():
+    conn = sqlite3.connect(DB_NAME)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+@app.route('/')
 def home():
-    return "Backend is running!"
+    return "Hello! Flask + SQLite is working."
 
-@app.route("/init-db")
-def init_db():
-    conn = sqlite3.connect("database.db")
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS contacts (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
-            email TEXT,
-            message TEXT
-        )
-    """)
+# Get all users
+@app.route('/users', methods=['GET'])
+def get_users():
+    conn = get_db_connection()
+    users = conn.execute('SELECT * FROM users').fetchall()
     conn.close()
-    return "Database created!"
+    return jsonify([dict(user) for user in users])
 
-@app.route("/submit", methods=["POST"])
-def submit():
-    data = request.json
+# Add a new user
+@app.route('/users', methods=['POST'])
+def add_user():
+    data = request.get_json()
+    name = data.get('name')
+    email = data.get('email')
+    
+    conn = get_db_connection()
+    try:
+        conn.execute('INSERT INTO users (name, email) VALUES (?, ?)', (name, email))
+        conn.commit()
+        conn.close()
+        return jsonify({"message": "User added successfully"}), 201
+    except sqlite3.IntegrityError:
+        conn.close()
+        return jsonify({"error": "Email already exists"}), 400
 
-    conn = sqlite3.connect("database.db")
-    conn.execute(
-        "INSERT INTO contacts (name, email, message) VALUES (?, ?, ?)",
-        (data["name"], data["email"], data["message"])
-    )
-    conn.commit()
-    conn.close()
-
-    return jsonify({"message": "Saved successfully!"})
-
-if __name__ == "__main__":
-    app.run()
+if __name__ == '__main__':
+    app.run(debug=True)
